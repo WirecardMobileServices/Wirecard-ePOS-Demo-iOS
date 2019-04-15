@@ -157,7 +157,7 @@ class PaymentVC: UIViewController, WDPaymentDelegate {
             self.progressLabel.text = "Terminal files will be installed"
             break
         default:
-            self.progressLabel.text = "Unknown Payment Progress Status :\(progress)"
+            self.progressLabel.text = "Unknown Payment Progress Status :\(String(describing: progress))"
             break
         }
         
@@ -211,8 +211,14 @@ class PaymentVC: UIViewController, WDPaymentDelegate {
         self.textView.text.append("Sale response : " + (saleResponse?.description ?? "Sale failed"))
         
         if let sale = saleResponse {
+            sale.receipt(true, showReturns: false, format: .HTML, dpi: .default, completion: { (receipts, error) in
+              
+                if let receipt = receipts?.first as? WDHtmlReceiptData
+                {
+                    self.textView.text.append("Sale receipt : \n" + ( receipt.receiptDescription()))
+                }
+            })
             
-            self.textView.text.append("Sale receipt : \n" + ( sale.getReceiptData().receiptDescription() ?? "No receipt"))
             self.saleResponse = sale
             self.performSegue(withIdentifier: "segueReceipt", sender: self)
         
@@ -308,30 +314,28 @@ class PaymentVC: UIViewController, WDPaymentDelegate {
             quantity: 1, // Item Quantity
             taxRate: NSDecimalNumber.init(value: 20), // Item Tax rate
             itemDescription: "Item 1", // Item description
-            productId: nil // External product ID - in the case you are using ERP - such as SAP and wish to refer to the product
+            productId: nil, // External product ID - in the case you are using ERP - such as SAP and wish to refer to the product
+            externalProductId: nil
         )
         
         // Define the Sale type as Purchase [other available are Return | Authorize | Pre-Authorize]
-        saleRequest.type = WDSaleType.purchase
+        //saleRequest.type = WDSaleType.purchase
         
         if let cashRegister = (UIApplication.shared.delegate as! AppDelegate).selectedCashRegister {
             saleRequest.cashRegisterId = cashRegister.internalId!
         }
         
         // Create Payment Configuration to be used in the Sale API later
-        let paymentConfiguration:WDPaymentConfig! = WDPaymentConfig.init()
-
+        //let paymentConfiguration:WDPaymentConfig! = WDPaymentConfig.init()
+        let paymentConfiguration:WDSaleRequestConfiguration! = WDSaleRequestConfiguration.init(saleRequest: saleRequest)
         
         if isCard == true {
             
             if let terminal = (UIApplication.shared.delegate as! AppDelegate).selectedTerminal {
                 // Set this Sale to be settled by Card transaction
                 saleRequest.addCardPayment(amount, terminal: terminal)
-                // Set the Sale of this payment configuration to be your new Sale Request
-                paymentConfiguration.sale = saleRequest;
-                
                 // Start the Payment flow
-                WDePOS.sharedInstance().saleManager.pay(paymentConfiguration, delegate: self) // Block to be executed at the end of the Payment process
+                WDePOS.sharedInstance().saleManager.pay(paymentConfiguration, with: self) // Block to be executed at the end of the Payment process
             }
             else{
                 Messages().showError(title: "Payment", message: "Please select the terminal in the Settings")
@@ -339,10 +343,8 @@ class PaymentVC: UIViewController, WDPaymentDelegate {
         }
         else{
             saleRequest.addCashPayment(amount)
-            // Set the Sale of this payment configuration to be your new Sale Request
-            paymentConfiguration.sale = saleRequest;
             // Start the Payment flow
-            WDePOS.sharedInstance().saleManager.pay(paymentConfiguration, delegate: self) // Block to be executed at the end of the Payment process
+            WDePOS.sharedInstance().saleManager.pay(paymentConfiguration, with: self) // Block to be executed at the end of the Payment process
         }
     }
 }

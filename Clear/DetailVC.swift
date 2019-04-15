@@ -44,7 +44,7 @@ class DetailVC: UIViewController {
             Messages().showActivity(onView: self.view)
             // Set the SDK target environment - in this case Public Test
             // and the username and password to authenticate to it
-            WDePOS.sharedInstance().setup(with: WDEnvironment.publicTest, username: "EposDemoUser", password: "Demo12345678!!", completion: setupCompletion)
+            WDePOS.sharedInstance().setup(with: WDEnvironment.publicTest, username: "integrationDemo", password: "123Wirecard.", completion: setupCompletion)
         }
     }
 

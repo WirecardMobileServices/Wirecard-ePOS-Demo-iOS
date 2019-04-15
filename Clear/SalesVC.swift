@@ -67,7 +67,7 @@ class SalesVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
             }
             else{
                 if let selectedSale = self.selectedSale {
-                    if let idx = self.sales?.index(where: {$0.internalId == selectedSale.internalId}){
+                    if let idx = self.sales?.index(where: {$0.saleId == selectedSale.saleId}){
                         self.tableView.selectRow(at: IndexPath.init(row: idx, section: 0), animated: true, scrollPosition: UITableViewScrollPosition.top)
                     }
                 }
@@ -77,12 +77,8 @@ class SalesVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
         
         // Query parameters such as paging, order by, sort
         // and specific filters such as full text search, sale creation date, sale type, sale status
-        let query:WDSalesQuery!  = WDSalesQuery.init(page: 0,
-                                                     pageSize: 20,
-                                                     orderBy: WDSaleQueryOrderBy.createdAt, // Order by Creation date
-            order: WDQuerySort.descending, // Sort Descending - latest Sale first
-            statuses: [],//all statuses or [NSNumber(value:UInt(WDSaleState.completed.rawValue))] for completed only
-            saleTypes: [    NSNumber(value:UInt(WDSaleType.purchase.rawValue))])// Purchases
+        
+        let query:WDSalesQuery!  = WDSalesQuery.init(page: 0, pageSize: 20, orderBy: .createdAt, order: .descending, statuses: [], saleTypes:  [    NSNumber(value:UInt(WDSaleType.purchase.rawValue))], paymentMethods:  [])//empty is All
         
         Messages().showActivity(onView: self.view)
         // Obtain the Sale
@@ -147,14 +143,14 @@ class SalesVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
                 let sale = sales[indexPath.row]
                 
                 var cardHolder = "Cash"
-                if sale.processedAlipayPayment() != nil {
+                if sale.processedAlipayPayments().count != 0 {
                     cardHolder = "Alipay"
                 }
-                else if sale.processedWeChatPayment() != nil {
+                else if sale.processedWeChatPayments().count != 0 {
                     cardHolder = "WeChat"
                 }
-                else if sale.processedCardPayment() != nil {
-                    cardHolder = sale.processedCardPayment().cardHolderName ?? ""
+                else if sale.processedCardPayments().count != 0 {
+                    cardHolder = sale.processedCardPayments().first?.cardHolderName ?? ""
                 }
 
                 var color = UIColor.init(red: 0, green: 153/255, blue: 51/255, alpha: 1)

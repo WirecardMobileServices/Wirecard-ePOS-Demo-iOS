@@ -96,8 +96,8 @@ class ProductsCVC: UICollectionViewController {
             //List of products images objects containing the information about product Id and URL of the image for the product
             Messages().hideActivity(onView: imageView)
             if let productsImage = productsImage {
-                if let productImage = productsImage.first{
-                    let image = UIImage.init(contentsOfFile: productImage.imagePath!.replacingOccurrences(of: "file://", with: ""))
+                if let productImage = productsImage.first, let imagePath = productImage.imagePath {
+                    let image = UIImage.init(contentsOfFile: imagePath.replacingOccurrences(of: "file://", with: ""))
                     imageView.image = image
                 }
             }

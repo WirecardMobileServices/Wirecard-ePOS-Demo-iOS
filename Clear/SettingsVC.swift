@@ -225,17 +225,17 @@ class SettingsVC: UIViewController,UIPickerViewDelegate,UIPickerViewDataSource {
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         if pickerView.tag == 1{
-            if let terminals = self.terminals {
+            if let terminals = self.terminals, terminals.count > row {
                 selectedTerminal = terminals[row]
             }
         }
         else if pickerView.tag == 2{
-            if let printers = self.printers {
+            if let printers = self.printers, printers.count > row {
                 selectedPrinter = printers[row]
             }
         }
         else if pickerView.tag == 3{
-            if let cashRegisters = self.cashRegisters {
+            if let cashRegisters = self.cashRegisters, cashRegisters.count > row {
                 selectedCashRegister = cashRegisters[row]
             }
         }

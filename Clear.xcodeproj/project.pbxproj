@@ -130,7 +130,6 @@
 				C04E4BB92084A929005CEB3C /* Frameworks */,
 				C04E4BBA2084A929005CEB3C /* Resources */,
 				9A24E7957F56E585AA7CF10F /* [CP] Embed Pods Frameworks */,
-				65ADDBC43FA95DBF464BB183 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -207,45 +206,28 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		65ADDBC43FA95DBF464BB183 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-Clear/Pods-Clear-resources.sh",
-				"${PODS_ROOT}/WDePOS/Pod/Classes/frameworks/WDePOSResources.bundle",
-				"${PODS_ROOT}/WDePOS/Pod/Classes/frameworks/WDePOSUIResources.bundle",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WDePOSResources.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WDePOSUIResources.bundle",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Clear/Pods-Clear-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		9A24E7957F56E585AA7CF10F /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-Clear/Pods-Clear-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-Clear/Pods-Clear-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/AFNetworking/AFNetworking.framework",
 				"${BUILT_PRODUCTS_DIR}/BerTlv/BerTlv.framework",
 				"${BUILT_PRODUCTS_DIR}/CocoaLumberjack/CocoaLumberjack.framework",
+				"${BUILT_PRODUCTS_DIR}/GRMustache/GRMustache.framework",
+				"${BUILT_PRODUCTS_DIR}/JRSwizzle/JRSwizzle.framework",
 				"${BUILT_PRODUCTS_DIR}/Lockbox/Lockbox.framework",
 				"${BUILT_PRODUCTS_DIR}/Mantle/Mantle.framework",
 				"${BUILT_PRODUCTS_DIR}/Overcoat/Overcoat.framework",
-				"${PODS_ROOT}/WDePOS/Pod/Classes/frameworks/WDePOS.framework",
-				"${PODS_ROOT}/WDePOS/Pod/Classes/frameworks/Datecs_SDK.framework",
-				"${PODS_ROOT}/WDePOS/Pod/Classes/frameworks/Socket_SDK.framework",
-				"${PODS_ROOT}/WDePOS/Pod/Classes/frameworks/Spire_SDK.framework",
-				"${PODS_ROOT}/WDePOS/Pod/Classes/frameworks/Stario_SDK.framework",
-				"${PODS_ROOT}/WDePOS/Pod/Classes/frameworks/WDePOSUI.framework",
+				"${PODS_ROOT}/../../Pod/Classes/frameworks/WDBrand.framework",
+				"${PODS_ROOT}/../../Pod/Classes/frameworks/WDePOS.framework",
+				"${PODS_ROOT}/../../Pod/Classes/frameworks/Datecs_SDK.framework",
+				"${PODS_ROOT}/../../Pod/Classes/frameworks/Socket_SDK.framework",
+				"${PODS_ROOT}/../../Pod/Classes/frameworks/Spire_SDK.framework",
+				"${PODS_ROOT}/../../Pod/Classes/frameworks/Stario_SDK.framework",
+				"${PODS_ROOT}/../../Pod/Classes/frameworks/WDePOSUI.framework",
 				"${BUILT_PRODUCTS_DIR}/ZipArchive/ZipArchive.framework",
 				"${BUILT_PRODUCTS_DIR}/libextobjc/libextobjc.framework",
 			);
@@ -254,9 +236,12 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AFNetworking.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BerTlv.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CocoaLumberjack.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GRMustache.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/JRSwizzle.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Lockbox.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Mantle.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Overcoat.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WDBrand.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WDePOS.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Datecs_SDK.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Socket_SDK.framework",
@@ -268,7 +253,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Clear/Pods-Clear-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Clear/Pods-Clear-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
