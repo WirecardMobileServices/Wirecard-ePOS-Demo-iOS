@@ -31,10 +31,18 @@ class PaymentVC: UIViewController, WDPaymentDelegate {
     var saleResponse:WDSaleResponse?
     var amountString:String = ""
     let currency = "EUR"
+    var originalSaleId : String?
+    var amountToPay = NSDecimalNumber.zero
     
     @IBOutlet weak var progressLabel: UILabel!
     @IBOutlet weak var amountLabel: UILabel!
+    @IBOutlet weak var remainingLabel: UILabel!
     @IBOutlet weak var textView: UITextView!
+    @IBOutlet weak var aSwitch: UISwitch!
+    @IBOutlet weak var cardBtn: UIButton!
+    @IBOutlet weak var cashBtn: UIButton!
+    @IBOutlet weak var multiPayBtn: UIButton!
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -210,18 +218,37 @@ class PaymentVC: UIViewController, WDPaymentDelegate {
         
         self.textView.text.append("Sale response : " + (saleResponse?.description ?? "Sale failed"))
         
-        if let sale = saleResponse {
-            sale.receipt(true, showReturns: false, format: .HTML, dpi: .default, completion: { (receipts, error) in
-              
-                if let receipt = receipts?.first as? WDHtmlReceiptData
-                {
-                    self.textView.text.append("Sale receipt : \n" + ( receipt.receiptDescription()))
-                }
-            })
+        if let sale = saleResponse
+        {
+            if amountToPay.isEqual(to: NSDecimalNumber.zero) == false
+            {
+                amountToPay =  amountToPay.subtracting(sale.totalPaid())
+            }
             
-            self.saleResponse = sale
-            self.performSegue(withIdentifier: "segueReceipt", sender: self)
-        
+            if amountToPay.isEqual(to: NSDecimalNumber.zero)
+            {
+                sale.receipt(true, showReturns: false, format: .HTML, dpi: .default, completion: { (receipts, error) in
+                    
+                    if let receipt = receipts?.first as? WDHtmlReceiptData
+                    {
+                        self.textView.text.append("Sale receipt : \n" + ( receipt.receiptDescription()))
+                    }
+                })
+                
+                self.saleResponse = sale
+                originalSaleId = nil
+                self.remainingLabel.isHidden = true
+                self.performSegue(withIdentifier: "segueReceipt", sender: self)
+                self.aSwitch.isEnabled = true
+                self.aSwitch.isOn = false
+            }
+            else
+            {
+                self.remainingLabel.text = "Remaining to pay: " + WDUtils.formatNumber(amountToPay, withCurrencyCode: currency, showSymbol: true)
+                originalSaleId = saleResponse?.originalSaleId
+                amountString = "0"
+                self.updateAmount()
+            }
         }
         
         if let err = saleResponseError {
@@ -240,6 +267,8 @@ class PaymentVC: UIViewController, WDPaymentDelegate {
         if segue.destination.isKind(of: ReceiptVC.self){
             let receiptVC = segue.destination as! ReceiptVC
             receiptVC.saleResponse = self.saleResponse
+            self.amountString = "0"
+            self.updateAmount()
         }
         
     }
@@ -253,7 +282,7 @@ class PaymentVC: UIViewController, WDPaymentDelegate {
                     amountString = String(amountString.dropLast())
                 }
             }
-            else{
+            else {
                 amountString.append(keyString)
             }
         }
@@ -265,6 +294,36 @@ class PaymentVC: UIViewController, WDPaymentDelegate {
     }
     @IBAction func onTapCashPayment(_ sender: Any) {
         pay(isCard: false)
+    }
+    
+    @IBAction func onTapMultiPay(_ sender: Any) {
+        self.aSwitch.isEnabled = false
+        self.cardBtn.isHidden = false
+        self.cashBtn.isHidden = false
+        self.multiPayBtn.isHidden = true
+        let amountConverted = NSDecimalNumber.init(string: amountString).dividing(by: WDUtils.decimalDivider(currency))
+        amountToPay = amountConverted
+        self.remainingLabel.text = "Remaining to pay: " + WDUtils.formatNumber(amountConverted, withCurrencyCode: currency, showSymbol: true)
+        amountString = "0"
+        self.updateAmount()
+    }
+    
+    @IBAction func onSwitchChanged(_ sender: Any) {
+        if aSwitch.isOn
+        {
+            self.remainingLabel.text = "Total to pay:"
+            self.remainingLabel.isHidden = false
+            self.cardBtn.isHidden = true
+            self.cashBtn.isHidden = true
+            self.multiPayBtn.isHidden = false
+        }
+        else
+        {
+            self.remainingLabel.isHidden = true
+            self.cardBtn.isHidden = false
+            self.cashBtn.isHidden = false
+            self.multiPayBtn.isHidden = true
+        }
     }
     
     // MARK: - Custom Methods
@@ -325,26 +384,49 @@ class PaymentVC: UIViewController, WDPaymentDelegate {
             saleRequest.cashRegisterId = cashRegister.internalId!
         }
         
-        // Create Payment Configuration to be used in the Sale API later
-        //let paymentConfiguration:WDPaymentConfig! = WDPaymentConfig.init()
-        let paymentConfiguration:WDSaleRequestConfiguration! = WDSaleRequestConfiguration.init(saleRequest: saleRequest)
-        
-        if isCard == true {
+        if originalSaleId == nil
+        {
+            // Create Payment Configuration to be used in the Sale API later
+            //let paymentConfiguration:WDPaymentConfig! = WDPaymentConfig.init()
+            let paymentConfiguration:WDSaleRequestConfiguration! = WDSaleRequestConfiguration.init(saleRequest: saleRequest)
             
-            if let terminal = (UIApplication.shared.delegate as! AppDelegate).selectedTerminal {
-                // Set this Sale to be settled by Card transaction
-                saleRequest.addCardPayment(amount, terminal: terminal)
-                // Start the Payment flow
-                WDePOS.sharedInstance().saleManager.pay(paymentConfiguration, with: self) // Block to be executed at the end of the Payment process
+            if isCard == true
+            {
+                if let terminal = (UIApplication.shared.delegate as! AppDelegate).selectedTerminal {
+                    // Set this Sale to be settled by Card transaction
+                    saleRequest.addCardPayment(amount, terminal: terminal)
+                }
+                else{
+                    Messages().showError(title: "Payment", message: "Please select the terminal in the Settings")
+                }
             }
             else{
-                Messages().showError(title: "Payment", message: "Please select the terminal in the Settings")
+                saleRequest.addCashPayment(amount)
             }
-        }
-        else{
-            saleRequest.addCashPayment(amount)
             // Start the Payment flow
             WDePOS.sharedInstance().saleManager.pay(paymentConfiguration, with: self) // Block to be executed at the end of the Payment process
         }
+        else if let originalSaleId = originalSaleId //If originalSaleId is not nil, we are doing multitender with reference sale requests
+        {
+            let multiTenderRequest : WDReferenceSaleRequest = WDReferenceSaleRequest.init(originalSaleId: originalSaleId)
+            
+            if isCard == true
+            {
+                if let terminal = (UIApplication.shared.delegate as! AppDelegate).selectedTerminal {
+                    multiTenderRequest.addCardPayment(amount, terminal: terminal)
+                }
+                else{
+                    Messages().showError(title: "Payment", message: "Please select the terminal in the Settings")
+                }
+            }
+            else{
+                multiTenderRequest.addCashPayment(amount)
+            }
+            if let paymentConfiguration : WDSaleRequestConfiguration = WDSaleRequestConfiguration.init(saleRequest: multiTenderRequest)
+            {
+                WDePOS.sharedInstance().saleManager.pay(paymentConfiguration, with: self)
+            }
+        }
     }
+    
 }
