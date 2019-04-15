@@ -39,7 +39,7 @@ The Switch ePOS backend documentation:
 
 * Computer running OSX
 * XCode 9
-* Device running iOS > 9.0
+* Device running iOS > 10.0
 * One of Wirecard approved terminals, printers, cash drawers, barcode scanners
 	* Spire [PosMate](http://www.spirepayments.com/product/posmate/ "PosMate")
 	* Spire [SPm2](http://www.spirepayments.com/product/spm2/ "SPm2")
@@ -58,6 +58,8 @@ The Switch ePOS backend documentation:
    Francisco Fortes
    
    Marek Timko
+
+   Jaroslav Pulik
 
 ## License
 
